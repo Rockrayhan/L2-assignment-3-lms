@@ -1,12 +1,13 @@
 import express, { Application, Request, Response } from "express";
-import { model, Schema } from "mongoose";
-import { Book } from "./models/books.model";
 import { booksRouter } from "./controllers/books.controller";
+import { borrowRouter } from "./controllers/borrow.controller";
 
 const app: Application = express();
 app.use(express.json());
 
 app.use(booksRouter);
+
+app.use("/api", borrowRouter);
 
 
 

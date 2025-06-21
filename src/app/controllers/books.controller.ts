@@ -20,17 +20,10 @@ booksRouter.post("/api/books", async (req: Request, res: Response) => {
   });
 });
 
-// get all books
-// booksRouter.get("/api/books", async (req: Request, res: Response) => {
-//   const books = await Book.find();
 
-//   res.status(201).json({
-//     success: true,
-//     message: "Books retrieved successfully",
-//     data: books,
-//   });
-// });
 
+
+// get all books with filtering
 booksRouter.get("/api/books", async (req: Request, res: Response) => {
   try {
     const filterGenre = req.query.filter as string;
@@ -63,7 +56,8 @@ booksRouter.get("/api/books", async (req: Request, res: Response) => {
   }
 });
 
-// Get Book by ID
+
+// Get single Book by ID
 booksRouter.get("/api/books/:bookId", async (req: Request, res: Response) => {
   const bookId = req.params.bookId;
   const book = await Book.findById(bookId);
@@ -74,6 +68,8 @@ booksRouter.get("/api/books/:bookId", async (req: Request, res: Response) => {
     data: book,
   });
 });
+
+
 
 // update Book
 booksRouter.patch("/api/books/:bookId", async (req: Request, res: Response) => {

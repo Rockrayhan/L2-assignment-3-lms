@@ -3,10 +3,14 @@ import { Book } from "../models/books.model";
 
 export const booksRouter = express.Router();
 
-
 // create book
 booksRouter.post("/api/books", async (req: Request, res: Response) => {
   const body = req.body;
+
+  if (body.copies === 0) {
+    body.available = false;
+  } 
+
   const data = await Book.create(body);
 
   res.status(201).json({
@@ -16,18 +20,48 @@ booksRouter.post("/api/books", async (req: Request, res: Response) => {
   });
 });
 
-
 // get all books
+// booksRouter.get("/api/books", async (req: Request, res: Response) => {
+//   const books = await Book.find();
+
+//   res.status(201).json({
+//     success: true,
+//     message: "Books retrieved successfully",
+//     data: books,
+//   });
+// });
+
 booksRouter.get("/api/books", async (req: Request, res: Response) => {
-  const books = await Book.find();
+  try {
+    const filterGenre = req.query.filter as string;
+    const sortBy = (req.query.sortBy as string) || "createdAt";
+    const sortOrder = (req.query.sort as string) || "desc";
+    const limit = parseInt(req.query.limit as string) || 10;
 
-  res.status(201).json({
-    success: true,
-    message: "Books retrieved successfully",
-    data: books,
-  });
+    let filter = {};
+    if (filterGenre) {
+      filter = { genre: filterGenre };
+    }
+
+    const sortDirection = sortOrder === "asc" ? 1 : -1;
+    const sortCondition: any = {};
+    sortCondition[sortBy] = sortDirection;
+
+    const books = await Book.find(filter).sort(sortCondition).limit(limit);
+
+    res.status(200).json({
+      success: true,
+      message: "Books retrieved successfully",
+      data: books,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Something went wrong while retrieving books",
+      error: (error as Error).message,
+    });
+  }
 });
-
 
 // Get Book by ID
 booksRouter.get("/api/books/:bookId", async (req: Request, res: Response) => {
@@ -41,12 +75,18 @@ booksRouter.get("/api/books/:bookId", async (req: Request, res: Response) => {
   });
 });
 
-
 // update Book
 booksRouter.patch("/api/books/:bookId", async (req: Request, res: Response) => {
   const bookId = req.params.bookId;
   const updatedBody = req.body;
-  const book = await Book.findByIdAndUpdate(bookId, updatedBody, {new: true});
+
+  if (updatedBody.copies === 0) {
+    updatedBody.available = false;
+  } else if (updatedBody.copies >= 1) {
+    updatedBody.available = true; 
+  }
+
+  const book = await Book.findByIdAndUpdate(bookId, updatedBody, { new: true });
 
   res.status(200).json({
     success: true,
@@ -55,16 +95,17 @@ booksRouter.patch("/api/books/:bookId", async (req: Request, res: Response) => {
   });
 });
 
-
 // delete Book
-booksRouter.delete("/api/books/:bookId", async (req: Request, res: Response) => {
-  const bookId = req.params.bookId;
-  const book = await Book.findByIdAndDelete(bookId);
+booksRouter.delete(
+  "/api/books/:bookId",
+  async (req: Request, res: Response) => {
+    const bookId = req.params.bookId;
+    const book = await Book.findByIdAndDelete(bookId);
 
-  res.status(200).json({
-    success: true,
-    message: "Book deleted successfully",
-    data: null,
-  });
-});
-
+    res.status(200).json({
+      success: true,
+      message: "Book deleted successfully",
+      data: null,
+    });
+  }
+);

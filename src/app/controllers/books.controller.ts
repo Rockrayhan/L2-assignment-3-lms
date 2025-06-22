@@ -1,5 +1,6 @@
 import express, { Request, Response } from "express";
 import { Book } from "../models/books.model";
+import mongoose from "mongoose";
 
 export const booksRouter = express.Router();
 
@@ -9,7 +10,7 @@ booksRouter.post("/api/books", async (req: Request, res: Response) => {
 
   if (body.copies === 0) {
     body.available = false;
-  } 
+  }
 
   const data = await Book.create(body);
 
@@ -19,8 +20,6 @@ booksRouter.post("/api/books", async (req: Request, res: Response) => {
     data,
   });
 });
-
-
 
 
 // get all books with filtering
@@ -57,12 +56,26 @@ booksRouter.get("/api/books", async (req: Request, res: Response) => {
 });
 
 
+
+
 // Get single Book by ID
+
 booksRouter.get("/api/books/:bookId", async (req: Request, res: Response) => {
   const bookId = req.params.bookId;
+
   const book = await Book.findById(bookId);
 
-  res.status(201).json({
+
+  if (!book) {
+    return res.status(404).json({
+      success: false,
+      message: "Book not found",
+      data: null,
+    });
+  }
+
+
+  res.status(200).json({
     success: true,
     message: "Book retrieved successfully",
     data: book,
@@ -79,7 +92,7 @@ booksRouter.patch("/api/books/:bookId", async (req: Request, res: Response) => {
   if (updatedBody.copies === 0) {
     updatedBody.available = false;
   } else if (updatedBody.copies >= 1) {
-    updatedBody.available = true; 
+    updatedBody.available = true;
   }
 
   const book = await Book.findByIdAndUpdate(bookId, updatedBody, { new: true });
@@ -91,12 +104,23 @@ booksRouter.patch("/api/books/:bookId", async (req: Request, res: Response) => {
   });
 });
 
+
+
 // delete Book
 booksRouter.delete(
   "/api/books/:bookId",
   async (req: Request, res: Response) => {
     const bookId = req.params.bookId;
+    
     const book = await Book.findByIdAndDelete(bookId);
+
+        if (!book) {
+      return res.status(404).json({
+        success: false,
+        message: "Book not found",
+        data: null,
+      });
+    }
 
     res.status(200).json({
       success: true,

@@ -10,7 +10,7 @@ import { IBook } from "../interfaces/book.interface";
 
 const bookSchema = new Schema<BookDocument>(
   {
-    title: { type: String, required: true },
+    title: { type: String, required: true, trim: true },
     author: { type: String, required: true },
     genre: {
       type: String,

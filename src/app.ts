@@ -1,6 +1,7 @@
 import express, { Application, Request, Response } from "express";
-import { booksRouter } from "./controllers/books.controller";
-import { borrowRouter } from "./controllers/borrow.controller";
+import { booksRouter } from "./app/controllers/books.controller";
+import { borrowRouter } from "./app/controllers/borrow.controller";
+
 
 const app: Application = express();
 app.use(express.json());

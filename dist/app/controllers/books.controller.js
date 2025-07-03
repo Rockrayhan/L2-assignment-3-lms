@@ -75,29 +75,36 @@ exports.booksRouter.get("/api/books/:bookId", (req, res) => __awaiter(void 0, vo
         data: book,
     });
 }));
-// update Book
+// update book
 exports.booksRouter.patch("/api/books/:bookId", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const bookId = req.params.bookId;
     const updatedBody = req.body;
-    if (updatedBody.copies === 0) {
-        updatedBody.available = false;
+    if ("copies" in updatedBody) {
+        const copies = Number(updatedBody.copies);
+        updatedBody.available = copies > 0;
     }
-    else if (updatedBody.copies >= 1) {
-        updatedBody.available = true;
-    }
-    const book = yield books_model_1.Book.findByIdAndUpdate(bookId, updatedBody, { new: true });
-    if (!book) {
-        return res.status(404).json({
-            success: false,
-            message: "Book not found",
-            data: null,
+    try {
+        const book = yield books_model_1.Book.findByIdAndUpdate(bookId, updatedBody, { new: true });
+        if (!book) {
+            return res.status(404).json({
+                success: false,
+                message: "Book not found",
+                data: null,
+            });
+        }
+        res.status(200).json({
+            success: true,
+            message: "Book updated successfully",
+            data: book,
         });
     }
-    res.status(200).json({
-        success: true,
-        message: "Book updated successfully",
-        data: book,
-    });
+    catch (error) {
+        res.status(500).json({
+            success: false,
+            message: "Internal server error",
+            error: error.message,
+        });
+    }
 }));
 // delete Book
 exports.booksRouter.delete("/api/books/:bookId", (req, res) => __awaiter(void 0, void 0, void 0, function* () {

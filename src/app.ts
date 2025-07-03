@@ -9,7 +9,7 @@ app.use(express.json());
 
 app.use(
   cors({
-    origin: ['http://localhost:5173', 'live-deploy-url']
+    origin: ['http://localhost:5173', 'https://assignment-3-library.vercel.app']
    })
 );
 

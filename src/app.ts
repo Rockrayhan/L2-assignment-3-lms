@@ -9,7 +9,7 @@ app.use(express.json());
 
 app.use(
   cors({
-    origin: ['http://localhost:5173', 'https://assignment-3-library.vercel.app']
+    origin: ['http://localhost:5173', 'https://lms-frontend-gray-iota.vercel.app/']
    })
 );
 

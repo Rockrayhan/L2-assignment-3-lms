@@ -82,37 +82,40 @@ booksRouter.get("/api/books/:bookId", async (req: Request, res: Response) => {
   });
 });
 
-
-
-// update Book
+// update book
 booksRouter.patch("/api/books/:bookId", async (req: Request, res: Response) => {
   const bookId = req.params.bookId;
   const updatedBody = req.body;
 
-  if (updatedBody.copies === 0) {
-    updatedBody.available = false;
-  } else if (updatedBody.copies >= 1) {
-    updatedBody.available = true;
+  if ("copies" in updatedBody) {
+    const copies = Number(updatedBody.copies);
+    updatedBody.available = copies > 0;
   }
 
-  const book = await Book.findByIdAndUpdate(bookId, updatedBody, { new: true });
+  try {
+    const book = await Book.findByIdAndUpdate(bookId, updatedBody, { new: true });
 
     if (!book) {
-    return res.status(404).json({
+      return res.status(404).json({
+        success: false,
+        message: "Book not found",
+        data: null,
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Book updated successfully",
+      data: book,
+    });
+  } catch (error) {
+    res.status(500).json({
       success: false,
-      message: "Book not found",
-      data: null,
+      message: "Internal server error",
+      error: error.message,
     });
   }
-
-
-  res.status(200).json({
-    success: true,
-    message: "Book updated successfully",
-    data: book,
-  });
 });
-
 
 
 // delete Book
